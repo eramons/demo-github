@@ -1,0 +1,55 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch
+spec:
+  version: 9.3.0 
+  http:
+    service:
+      spec:
+        type: ClusterIP
+  nodeSets:
+  - name: stable 
+    count: 1
+    config:
+      node.roles: ["master", "data", "ingest"]
+      node.store.allow_mmap: false  # Disable mmap for node storage (for compatibility)
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            requests:
+              memory: 2Gi  
+              cpu: 1  
+            limits:
+              memory: 2Gi 
+              cpu: 2  
+  - name: fragile
+    count: 1 
+    config:
+      node.roles: ["data", "ingest"]
+      node.store.allow_mmap: false  # Disable mmap for node storage (for compatibility)
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 1
+            limits:
+              memory: 2Gi
+              cpu: 2
+
+    # Persistent Volume Claim for Elasticsearch data storage
+    # Use volumeClaimTemplates to request storage for each Elasticsearch pod in the StatefulSet
+    volumeClaimTemplates:
+      - metadata:
+          name: elasticsearch-data  # Name of the volume claim
+        spec:
+          accessModes:
+            - ReadWriteOnce  # Each pod will have exclusive access to its volume
+          resources:
+            requests:
+              storage: 2Gi  

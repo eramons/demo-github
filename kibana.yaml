@@ -1,0 +1,32 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: kibana
+spec:
+  version: 9.3.0
+  count: 1
+  elasticsearchRef:
+    name: elasticsearch  # Reference to the Elasticsearch cluster
+  podTemplate:
+    spec:
+      containers:
+        - name: kibana
+          resources:
+            requests:
+              memory: 1Gi  
+              cpu: 1 
+            limits:
+              memory: 1Gi
+              cpu: 1 
+  http:
+    service:
+      spec:
+        type: NodePort
+        ports:
+          - name: http
+            protocol: TCP
+            port: 5601
+            nodePort: 30001
+    tls:
+      selfSignedCertificate:
+        disabled: true
