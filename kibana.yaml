@@ -7,8 +7,6 @@ spec:
   count: 1
   elasticsearchRef:
     name: elasticsearch
-  config:
-    monitoring.ui.ccs.enabled: false
   podTemplate:
     spec:
       containers:
