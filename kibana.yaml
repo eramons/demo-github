@@ -6,7 +6,9 @@ spec:
   version: 9.3.0
   count: 1
   elasticsearchRef:
-    name: elasticsearch  # Reference to the Elasticsearch cluster
+    name: elasticsearch
+  config:
+    monitoring.ui.ccs.enabled: false
   podTemplate:
     spec:
       containers:

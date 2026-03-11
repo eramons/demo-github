@@ -4,6 +4,13 @@ metadata:
   name: elasticsearch
 spec:
   version: 9.3.0 
+  monitoring:
+    metrics:
+      elasticsearchRefs:
+        - name: elasticsearch
+    logs:
+      elasticsearchRefs:
+        - name: elasticsearch
   http:
     service:
       spec:
@@ -13,43 +20,47 @@ spec:
     count: 1
     config:
       node.roles: ["master", "data", "ingest"]
-      node.store.allow_mmap: false  # Disable mmap for node storage (for compatibility)
     podTemplate:
       spec:
         containers:
         - name: elasticsearch
           resources:
             requests:
-              memory: 2Gi  
+              memory: 1Gi  
               cpu: 1  
             limits:
               memory: 2Gi 
               cpu: 2  
-  - name: fragile
+    volumeClaimTemplates:  
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  - name: small 
     count: 1 
     config:
       node.roles: ["data", "ingest"]
-      node.store.allow_mmap: false  # Disable mmap for node storage (for compatibility)
     podTemplate:
       spec:
         containers:
         - name: elasticsearch
           resources:
             requests:
-              memory: 2Gi
+              memory: 256Mi
               cpu: 1
             limits:
-              memory: 2Gi
+              memory: 256Mi
               cpu: 2
-
-    # Persistent Volume Claim for Elasticsearch data storage
-    # Use volumeClaimTemplates to request storage for each Elasticsearch pod in the StatefulSet
     volumeClaimTemplates:
-      - metadata:
-          name: elasticsearch-data  # Name of the volume claim
-        spec:
-          accessModes:
-            - ReadWriteOnce  # Each pod will have exclusive access to its volume
-          resources:
-            requests:
-              storage: 2Gi  
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi  
